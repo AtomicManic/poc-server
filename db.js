@@ -21,17 +21,30 @@ const connectToDb = () => {
 
 
 const saveSensorData = async (client, data) => {
-  const query = 
-  ` INSERT INTO missions (mission_id, drone_id, mission_name, mission_description, mission_start, mission_end, mission_status)
-    VALUES (${data.mission_id}, ${data.drone_id}, ${data.mission_name}, ${data.mission_description}, ${data.mission_start}, ${data.mission_end}, ${data.mission_status})
-    ON CONFLICT (mission_id) DO NOTHING;`
+
+    const queryText = `
+    INSERT INTO data_readings (reading_id, mission_id, timestamp, accelX, accelY, accelZ, temperature, humidity)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    ON CONFLICT (reading_id) DO NOTHING;
+  `;
+
+  const queryParams = [
+    "1",
+    Date.now(),
+    data.accelX,
+    data.accelY,
+    data.accelZ,
+    data.temperature,
+    data.humidity,
+  ];
 
   try {
-    await client.query(query);
-    console.log('Data saved to the database');
-  } catch (error) {
-    console.error('Error saving data to the database', error);
+    await client.query(queryText, queryParams);
+    console.log('Data inserted successfully');
+  } catch (err) {
+    console.error('Error inserting data', err.stack);
   }
+
 };
 
 module.exports = {connectToDb , saveSensorData};
