@@ -22,31 +22,35 @@ const connectToDb = () => {
 
 const saveSensorData = async (client, data) => {
 
-    const queryText = `
-    INSERT INTO data_readings (reading_id, mission_id, timestamp, accelX, accelY, accelZ, temperature, humidity)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-    ON CONFLICT (reading_id) DO NOTHING;
-  `;
+    if(client){
+        const queryText = `
+        INSERT INTO data_readings (reading_id, mission_id, timestamp, accelX, accelY, accelZ, temperature, humidity)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        ON CONFLICT (reading_id) DO NOTHING;
+      `;
+    
+      const queryParams = [
+        "1",
+        Date.now(),
+        data.accelX,
+        data.accelY,
+        data.accelZ,
+        data.temperature,
+        data.humidity,
+      ];
+    
+      const query = {text: queryText, values: queryParams};
+    
+      try {
+        await client.query(query);
+        console.log('Data inserted successfully');
+      } catch (err) {
+        console.error('Error inserting data', err.stack);
+      }
 
-  const queryParams = [
-    "1",
-    Date.now(),
-    data.accelX,
-    data.accelY,
-    data.accelZ,
-    data.temperature,
-    data.humidity,
-  ];
-
-  const query = {text: queryText, values: queryParams};
-
-  try {
-    await client.query(query);
-    console.log('Data inserted successfully');
-  } catch (err) {
-    console.error('Error inserting data', err.stack);
-  }
-
+    }else{
+        console.error('No client to connect to the database');
+    }
 };
 
 module.exports = {connectToDb , saveSensorData};
