@@ -38,8 +38,10 @@ const saveSensorData = async (client, data) => {
     data.humidity,
   ];
 
+  const query = {text: queryText, values: queryParams};
+
   try {
-    await client.query(queryText, queryParams);
+    await client.query(query);
     console.log('Data inserted successfully');
   } catch (err) {
     console.error('Error inserting data', err.stack);
